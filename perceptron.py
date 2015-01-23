@@ -1,5 +1,5 @@
-from random import sample
-from math import floor
+import math
+import random
 
 class Borg:
 
@@ -26,13 +26,14 @@ class EventDispatcher:
             raise ValueError('Error: cant remove event listener: no subsciption to %s from %s' % (eventType, callBack))
 
     def dispatchEvent(self, eventType, *args, **kwargs):
-        for f in self.listeners[eventType]:
+        #if it has no listeners then fine
+        for f in self.listeners.setdefault(eventType,[]):
             f(*args, **kwargs)
 
 class Perceptron(Borg):
 
-    LISTEN_TO   = 1       #what part of total sensors should one associate subscribe to if random perceptron
-    ASSOCIATES  = 1
+    LISTEN_TO   = 0.5       #what part of total sensors should one associate subscribe to if random perceptron
+    ASSOCIATES  = 5
     SENSORS     = 8
 
     """"""
@@ -55,7 +56,7 @@ class Sensor(EventDispatcher):
 class SensorField():
     """Input of the Perceptron"""
     """accpets certain number of bits of data"""
-    def __init__(self, size = 8):
+    def __init__(self, size):
         self.sensors = []
         self.size = size
         for i in range(0,size):
@@ -63,7 +64,6 @@ class SensorField():
 
     def incomingSignal(self,signal):
         for i in range(0,len(signal)):
-            print(i)
             if int(signal[i])==1: self.sensors[i].dispatchEvent(EventDispatcher.SIGNAL_EVENT)
 
 
@@ -78,12 +78,12 @@ class Associate():
     
     def __init__(self,sensorField,num):
         self.num = num
+        self.w = 0      #weight of A-R link
+
         #lets subscribe to some of the sensors
-        sNums = sample([i for i in range(0,sensorField.size)], floor(sensorField.size*Perceptron.LISTEN_TO))
-        print('sNums: ',sNums)
+        sNums = random.sample([i for i in range(0,sensorField.size)], math.floor(sensorField.size*Perceptron.LISTEN_TO))
         for i in range(0,len(sNums)):
             sensor = sensorField.getSensor(sNums[i])
-            print('associate %s subscribed to sensor %s' % (num, sNums[i]))
             sensor.addEventListener(EventDispatcher.SIGNAL_EVENT,self.sensorListener)
             
     def sensorListener(self):
@@ -96,5 +96,9 @@ class Response():
     def __init__(self):
         pass
 
-p = Perceptron(sensorSize = Perceptron.LISTEN_TO, associateCount = Perceptron.ASSOCIATES)
+#first lets generate a perceptron
+p = Perceptron(sensorSize = Perceptron.SENSORS, associateCount = Perceptron.ASSOCIATES)
+
+#now lets teach it something
+
 p.makeDesision()
