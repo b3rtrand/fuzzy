@@ -62,7 +62,7 @@ class SensorField():
         for i in range(0,size):
             self.sensors.append(Sensor(i))
 
-    def incomingSignal(self,signal):
+    def incomingSignal(self, signal):
         for i in range(0,len(signal)):
             if int(signal[i])==1: self.sensors[i].dispatchEvent(EventDispatcher.SIGNAL_EVENT)
 
@@ -76,13 +76,13 @@ class Associate():
     """A - element of the Perceptron"""
     """It accepts sensor field and starts listening to some number of sensors"""
     
-    def __init__(self,sensorField,num):
+    def __init__(self, sensorField, num):
         self.num = num
         self.w = 0      #weight of A-R link
 
         #lets subscribe to some of the sensors
-        sNums = random.sample([i for i in range(0,sensorField.size)], math.floor(sensorField.size*Perceptron.LISTEN_TO))
-        for i in range(0,len(sNums)):
+        sNums = random.sample([i for i in range(sensorField.size)], math.floor(sensorField.size*Perceptron.LISTEN_TO))
+        for i in range(len(sNums)):
             sensor = sensorField.getSensor(sNums[i])
             sensor.addEventListener(EventDispatcher.SIGNAL_EVENT,self.sensorListener)
             
